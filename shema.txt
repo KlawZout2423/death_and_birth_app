@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client"
+  output = "../generated/"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  REGISTRY_OFFICER
+  INSTITUTION_OFFICER
+  ADMINISTRATOR
+}
+
+enum RecordStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  CERTIFICATE_ISSUED
+  NOTIFIED
+}
+
+enum InstitutionType {
+  BANK
+  INSURANCE
+  PENSION
+}
+
+enum NotificationStatus {
+  SENT
+  RECEIVED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  role          Role
+  name          String?
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  deathRecords     DeathRecord[] @relation("CreatedBy")
+  verifiedRecords  DeathRecord[] @relation("VerifiedBy")
+  certificates     Certificate[]
+  notifications    Notification[]
+}
+
+model DeathRecord {
+  id                String        @id @default(cuid())
+  fullName          String
+  dateOfBirth       DateTime
+  dateOfDeath       DateTime
+  placeOfDeath      String
+  causeOfDeath      String
+  nationalId        String?
+  informantName     String
+  informantContact  String
+  doctorReportUrl   String?
+  status            RecordStatus  @default(PENDING_VERIFICATION)
+  createdById       String
+  createdBy         User          @relation("CreatedBy", fields: [createdById], references: [id])
+  verifiedById      String?
+  verifiedBy        User?         @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  certificate       Certificate?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  notifications     Notification[]
+}
+
+model Certificate {
+  id                String      @id @default(cuid())
+  deathRecordId     String      @unique
+  deathRecord       DeathRecord? @relation(fields: [deathRecordId], references: [id], onDelete: Cascade)
+  certificateNumber String      @unique
+  issueDate         DateTime    @default(now())
+  issuedById        String
+  issuedBy          User        @relation(fields: [issuedById], references: [id])
+}
+
+model Institution {
+  id      String           @id @default(cuid())
+  name    String
+  type    InstitutionType
+  email   String
+  status  Boolean          @default(true)
+  users   User[]
+  notifications Notification[]
+}
+
+model Notification {
+  id             String            @id @default(cuid())
+  deathRecordId  String
+  deathRecord    DeathRecord       @relation(fields: [deathRecordId], references: [id], onDelete: Cascade)
+  institutionId  String
+  institution    Institution       @relation(fields: [institutionId], references: [id])
+  status         NotificationStatus @default(SENT)
+  sentAt         DateTime          @default(now())
+  receivedAt     DateTime?
+  viewedById     String?
+  viewedBy       User?             @relation(fields: [viewedById], references: [id])
+}

@@ -1,0 +1,240 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                   String         @id @default(cuid())
+  email                String         @unique
+  password             String
+  role                 Role
+  name                 String?
+  institutionId        String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  emailVerified        Boolean        @default(false)
+  image                String?
+  birthRecords         BirthRecord[]  @relation("BirthCreatedBy")
+  verifiedBirthRecords BirthRecord[]  @relation("BirthVerifiedBy")
+  certificates         Certificate[]
+  deathRecords         DeathRecord[]  @relation("CreatedBy")
+  verifiedRecords      DeathRecord[]  @relation("VerifiedBy")
+  notifications        Notification[]
+  accounts             Account[]
+  sessions             Session[]
+  institution          Institution?   @relation(fields: [institutionId], references: [id])
+
+  @@map("user")
+}
+
+model DeathRecord {
+  id                String         @id @default(cuid())
+  fullName          String
+  dateOfBirth       DateTime
+  dateOfDeath       DateTime
+  placeOfDeath      String
+  causeOfDeath      String
+  nationalId        String?
+  informantName     String
+  informantContact  String
+  doctorReportUrl   String?
+  status            RecordStatus   @default(PENDING_VERIFICATION)
+  createdById       String
+  verifiedById      String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  ageAtDeath        Int?
+  gender            String?
+  informantRelation String?
+  rejectionReason   String?
+  timeOfDeath       String?
+  deathRegionId     String?
+  certificate       Certificate?
+  createdBy         User           @relation("CreatedBy", fields: [createdById], references: [id])
+  deathRegion       Region?        @relation("DeathRegionRecords", fields: [deathRegionId], references: [id])
+  verifiedBy        User?          @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  nextOfKin         NextOfKin[]
+  notifications     Notification[]
+
+  @@index([deathRegionId])
+}
+
+model BirthRecord {
+  id                    String       @id @default(cuid())
+  childName             String
+  dateOfBirth           DateTime
+  timeOfBirth           String?
+  gender                String?
+  placeOfBirth          String
+  birthType             String?
+  motherName            String
+  fatherName            String
+  informantName         String?
+  informantContact      String?
+  registrationCenter    String?
+  attendantName         String?
+  supportingDocumentUrl String?
+  verificationNotes     String?
+  status                RecordStatus @default(PENDING_VERIFICATION)
+  rejectionReason       String?
+  createdById           String
+  verifiedById          String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  birthRegionId         String?
+  birthRegion           Region?      @relation("BirthRegionRecords", fields: [birthRegionId], references: [id])
+  createdBy             User         @relation("BirthCreatedBy", fields: [createdById], references: [id])
+  verifiedBy            User?        @relation("BirthVerifiedBy", fields: [verifiedById], references: [id])
+  certificate           Certificate?
+
+  @@index([birthRegionId])
+}
+
+model Region {
+  id           String        @id @default(cuid())
+  code         String        @unique
+  name         String
+  country      String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  birthRecords BirthRecord[] @relation("BirthRegionRecords")
+  deathRecords DeathRecord[] @relation("DeathRegionRecords")
+}
+
+model Certificate {
+  id                String      @id @default(cuid())
+  deathRecordId     String?     @unique
+  birthRecordId     String?     @unique
+  certificateNumber String      @unique
+  issueDate         DateTime    @default(now())
+  issuedById        String
+  deathRecord       DeathRecord? @relation(fields: [deathRecordId], references: [id], onDelete: Cascade)
+  birthRecord       BirthRecord? @relation(fields: [birthRecordId], references: [id], onDelete: Cascade)
+  issuedBy          User        @relation(fields: [issuedById], references: [id])
+}
+
+model Institution {
+  id            String          @id @default(cuid())
+  name          String
+  type          InstitutionType
+  email         String
+  status        Boolean         @default(true)
+  nextOfKin     NextOfKin[]
+  notifications Notification[]
+  users         User[]
+}
+
+model Notification {
+  id            String             @id @default(cuid())
+  deathRecordId String
+  institutionId String
+  status        NotificationStatus @default(SENT)
+  sentAt        DateTime           @default(now())
+  receivedAt    DateTime?
+  viewedById    String?
+  deathRecord   DeathRecord        @relation(fields: [deathRecordId], references: [id], onDelete: Cascade)
+  institution   Institution        @relation(fields: [institutionId], references: [id])
+  viewedBy      User?              @relation(fields: [viewedById], references: [id])
+}
+
+model NextOfKin {
+  id            String                @id @default(cuid())
+  deathRecordId String
+  institutionId String
+  lookupStatus  NextOfKinLookupStatus @default(FOUND)
+  infoSource    String?
+  fullName      String?
+  relation      String?
+  contactNumber String?
+  address       String?
+  notes         String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  deathRecord   DeathRecord           @relation(fields: [deathRecordId], references: [id], onDelete: Cascade)
+  institution   Institution           @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([deathRecordId, institutionId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+enum Role {
+  REGISTRY_OFFICER
+  INSTITUTION_OFFICER
+  ADMINISTRATOR
+}
+
+enum RecordStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  CERTIFICATE_ISSUED
+  NOTIFIED
+}
+
+enum InstitutionType {
+  BANK
+  INSURANCE
+  PENSION
+}
+
+enum NotificationStatus {
+  SENT
+  RECEIVED
+}
+
+enum NextOfKinLookupStatus {
+  FOUND
+  NOT_FOUND
+}
