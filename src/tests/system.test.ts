@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { prisma } from "../lib/prisma";
 import { authenticate } from "../lib/userStore";
 import { createSession, verifySession } from "../lib/session";
-import { Role, RecordStatus, NotificationStatus } from "@prisma/client";
+import { Role, RecordStatus, NotificationStatus } from "../../generated/client";
 
 describe("DOB Project System Integration Tests", () => {
   // Test data variables

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/client';
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 const COOKIE_NAME = "session";
