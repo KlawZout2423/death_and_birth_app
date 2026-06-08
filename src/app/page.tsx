@@ -5,147 +5,677 @@ export default async function Home() {
   const session = await getSession();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-blue-600 rounded-full mb-8">
-              <span className="text-3xl font-bold text-white">BDRS</span>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .lp-root {
+          min-height: 100vh;
+          font-family: 'Inter', sans-serif;
+          background: #f8fafc;
+          color: #0f172a;
+        }
+
+        /* ── NAV ── */
+        .lp-nav {
+          position: fixed;
+          top: 0; left: 0; right: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 2rem;
+          height: 64px;
+          background: rgba(255,255,255,0.92);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(15,23,42,0.06);
+        }
+        .lp-nav-brand {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          text-decoration: none;
+        }
+        .lp-nav-logo {
+          width: 36px; height: 36px;
+          background: linear-gradient(135deg, #0d2654 0%, #1a56db 100%);
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Sora', sans-serif;
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: 0.05em;
+        }
+        .lp-nav-name {
+          font-family: 'Sora', sans-serif;
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #0d2654;
+          letter-spacing: -0.02em;
+        }
+        .lp-nav-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          background: #0d2654;
+          color: #fff;
+          font-size: 0.8rem;
+          font-weight: 600;
+          padding: 0.5rem 1.1rem;
+          border-radius: 8px;
+          text-decoration: none;
+          transition: background 0.2s;
+        }
+        .lp-nav-cta:hover { background: #1a3a6b; }
+
+        /* ── HERO ── */
+        .lp-hero {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          padding: 80px 2rem 4rem;
+          background:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26,86,219,0.07) 0%, transparent 70%),
+            #f8fafc;
+          position: relative;
+          overflow: hidden;
+        }
+        .lp-hero::before {
+          content: '';
+          position: absolute;
+          top: 120px; right: -80px;
+          width: 480px; height: 480px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(26,86,219,0.06) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .lp-hero::after {
+          content: '';
+          position: absolute;
+          bottom: 0; left: -60px;
+          width: 320px; height: 320px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(13,38,84,0.05) 0%, transparent 70%);
+          pointer-events: none;
+        }
+
+        .lp-hero-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+
+        .lp-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          background: rgba(26,86,219,0.08);
+          border: 1px solid rgba(26,86,219,0.15);
+          color: #1a56db;
+          font-size: 0.7rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 0.35rem 0.8rem;
+          border-radius: 20px;
+          margin-bottom: 1.5rem;
+        }
+        .lp-badge-dot {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: #1a56db;
+          animation: lp-pulse 2s ease infinite;
+        }
+        @keyframes lp-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+
+        .lp-hero-title {
+          font-family: 'Sora', sans-serif;
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 800;
+          color: #0d2654;
+          line-height: 1.15;
+          letter-spacing: -0.03em;
+          margin-bottom: 1.25rem;
+        }
+        .lp-hero-title span {
+          background: linear-gradient(135deg, #1a56db, #0d2654);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .lp-hero-desc {
+          font-size: 1rem;
+          line-height: 1.75;
+          color: #475569;
+          max-width: 480px;
+          margin-bottom: 2rem;
+        }
+
+        .lp-hero-actions {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+        .lp-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: linear-gradient(135deg, #0d2654 0%, #1a56db 100%);
+          color: #fff;
+          font-size: 0.9rem;
+          font-weight: 600;
+          padding: 0.75rem 1.75rem;
+          border-radius: 10px;
+          text-decoration: none;
+          transition: opacity 0.2s, transform 0.2s;
+          box-shadow: 0 4px 14px rgba(26,86,219,0.25);
+        }
+        .lp-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .lp-btn-secondary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #fff;
+          color: #0d2654;
+          font-size: 0.9rem;
+          font-weight: 600;
+          padding: 0.75rem 1.75rem;
+          border-radius: 10px;
+          text-decoration: none;
+          border: 1px solid #e2e8f0;
+          transition: background 0.2s, transform 0.2s;
+        }
+        .lp-btn-secondary:hover { background: #f1f5f9; transform: translateY(-1px); }
+
+        /* Trusted logos row */
+        .lp-trust {
+          margin-top: 3rem;
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+        .lp-trust-label {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #94a3b8;
+        }
+        .lp-trust-chips {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        .lp-trust-chip {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 0.3rem 0.65rem;
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: #475569;
+        }
+
+        /* ── HERO VISUAL (right side) ── */
+        .lp-hero-visual {
+          position: relative;
+        }
+        .lp-card-stack {
+          position: relative;
+          width: 100%;
+          max-width: 420px;
+          margin: 0 auto;
+        }
+
+        /* Floating stat cards */
+        .lp-stat-card {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          padding: 1rem 1.25rem;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          position: absolute;
+          min-width: 180px;
+          animation: lp-float 4s ease-in-out infinite;
+        }
+        @keyframes lp-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        .lp-stat-card:nth-child(2) { animation-delay: 1.3s; }
+        .lp-stat-card:nth-child(3) { animation-delay: 2.6s; }
+
+        .lp-stat-icon {
+          width: 40px; height: 40px;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1.1rem;
+          flex-shrink: 0;
+        }
+        .lp-stat-label { font-size: 0.7rem; color: #94a3b8; font-weight: 500; }
+        .lp-stat-value { font-size: 1.05rem; font-weight: 700; color: #0d2654; font-family: 'Sora', sans-serif; }
+
+        .lp-main-card {
+          background: linear-gradient(145deg, #0d2654, #1a3a6b);
+          border-radius: 20px;
+          padding: 2rem;
+          color: #fff;
+          box-shadow: 0 20px 60px rgba(13,38,84,0.3);
+          position: relative;
+          overflow: hidden;
+          margin: 2rem 0;
+        }
+        .lp-main-card::before {
+          content: '';
+          position: absolute;
+          top: -40px; right: -40px;
+          width: 180px; height: 180px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.05);
+        }
+        .lp-main-card-label {
+          font-size: 0.65rem;
+          font-weight: 600;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.5);
+          margin-bottom: 0.5rem;
+        }
+        .lp-main-card-title {
+          font-family: 'Sora', sans-serif;
+          font-size: 1.3rem;
+          font-weight: 700;
+          margin-bottom: 1.25rem;
+        }
+        .lp-main-card-steps {
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+        }
+        .lp-step {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          background: rgba(255,255,255,0.07);
+          border-radius: 8px;
+          padding: 0.5rem 0.75rem;
+        }
+        .lp-step-num {
+          width: 22px; height: 22px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.15);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.65rem;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+        .lp-step-text { font-size: 0.8rem; color: rgba(255,255,255,0.85); }
+
+        /* ── FEATURES ── */
+        .lp-features {
+          padding: 5rem 2rem;
+          background: #fff;
+        }
+        .lp-section-label {
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #1a56db;
+          text-align: center;
+          margin-bottom: 0.6rem;
+        }
+        .lp-section-title {
+          font-family: 'Sora', sans-serif;
+          font-size: clamp(1.5rem, 3vw, 2rem);
+          font-weight: 800;
+          color: #0d2654;
+          text-align: center;
+          letter-spacing: -0.02em;
+          margin-bottom: 0.75rem;
+        }
+        .lp-section-desc {
+          text-align: center;
+          color: #64748b;
+          font-size: 0.95rem;
+          max-width: 520px;
+          margin: 0 auto 3rem;
+          line-height: 1.7;
+        }
+
+        .lp-features-grid {
+          max-width: 1100px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.5rem;
+        }
+        .lp-feature-card {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 1.75rem;
+          transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .lp-feature-card:hover {
+          border-color: #1a56db;
+          box-shadow: 0 8px 30px rgba(26,86,219,0.1);
+          transform: translateY(-2px);
+        }
+        .lp-feature-icon {
+          width: 44px; height: 44px;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+        }
+        .lp-feature-title {
+          font-family: 'Sora', sans-serif;
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #0d2654;
+          margin-bottom: 0.5rem;
+        }
+        .lp-feature-desc { font-size: 0.85rem; color: #64748b; line-height: 1.65; }
+
+        /* ── STATS BANNER ── */
+        .lp-stats {
+          padding: 4rem 2rem;
+          background: linear-gradient(135deg, #0d2654 0%, #1a3a6b 100%);
+        }
+        .lp-stats-inner {
+          max-width: 900px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
+          text-align: center;
+        }
+        .lp-stat-big { }
+        .lp-stat-big-num {
+          font-family: 'Sora', sans-serif;
+          font-size: 2.5rem;
+          font-weight: 800;
+          color: #fff;
+          margin-bottom: 0.3rem;
+        }
+        .lp-stat-big-label { font-size: 0.85rem; color: rgba(255,255,255,0.55); }
+        .lp-stats-divider {
+          width: 1px;
+          background: rgba(255,255,255,0.1);
+          margin: 0 auto;
+        }
+
+        /* ── FOOTER ── */
+        .lp-footer {
+          padding: 2rem;
+          background: #fff;
+          border-top: 1px solid #e2e8f0;
+          text-align: center;
+        }
+        .lp-footer p { font-size: 0.8rem; color: #94a3b8; }
+
+        /* ── RESPONSIVE ── */
+
+        /* Mobile: up to 479px */
+        @media (max-width: 479px) {
+          .lp-nav { padding: 0 1rem; height: 56px; }
+          .lp-nav-name { display: none; }
+          .lp-nav-cta { font-size: 0.75rem; padding: 0.4rem 0.85rem; }
+
+          .lp-hero { padding: 72px 1.25rem 3rem; min-height: auto; }
+          .lp-hero-inner { grid-template-columns: 1fr; gap: 0; }
+          .lp-hero-visual { display: none; }
+          .lp-hero-title { font-size: 1.75rem; }
+          .lp-hero-desc { font-size: 0.9rem; margin-bottom: 1.5rem; }
+          .lp-btn-primary, .lp-btn-secondary { width: 100%; justify-content: center; font-size: 0.875rem; }
+          .lp-hero-actions { flex-direction: column; }
+          .lp-trust { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+
+          .lp-features { padding: 3rem 1.25rem; }
+          .lp-features-grid { grid-template-columns: 1fr; gap: 1rem; }
+          .lp-feature-card { padding: 1.25rem; }
+
+          .lp-stats { padding: 2.5rem 1.25rem; }
+          .lp-stats-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+          .lp-stat-big-num { font-size: 2rem; }
+
+          .lp-footer { padding: 1.5rem 1.25rem; }
+        }
+
+        /* Small tablet: 480px – 767px */
+        @media (min-width: 480px) and (max-width: 767px) {
+          .lp-nav { padding: 0 1.5rem; }
+          .lp-hero { padding: 80px 1.5rem 3.5rem; min-height: auto; }
+          .lp-hero-inner { grid-template-columns: 1fr; gap: 2rem; }
+          .lp-hero-visual { display: none; }
+          .lp-hero-title { font-size: 2.2rem; }
+
+          .lp-features { padding: 4rem 1.5rem; }
+          .lp-features-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+
+          .lp-stats-inner { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+          .lp-stat-big-num { font-size: 1.8rem; }
+        }
+
+        /* Tablet: 768px – 1023px */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .lp-hero { padding: 80px 2rem 4rem; }
+          .lp-hero-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+          .lp-hero-visual { display: block; }
+          .lp-stat-card { min-width: 150px; padding: 0.75rem 1rem; }
+          .lp-stat-card .lp-stat-value { font-size: 0.95rem; }
+          .lp-main-card { padding: 1.5rem; }
+          .lp-main-card-title { font-size: 1.1rem; }
+
+          .lp-features { padding: 4rem 2rem; }
+          .lp-features-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+
+          .lp-stats-inner { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        }
+
+        /* Desktop: 1024px+ — default styles apply, no override needed */
+      `}</style>
+
+      <div className="lp-root">
+
+        {/* NAV */}
+        <nav className="lp-nav">
+          <a href="/" className="lp-nav-brand">
+            <div className="lp-nav-logo">BDRS</div>
+            <span className="lp-nav-name">Vital Registry</span>
+          </a>
+          {session ? (
+            <a href="/dashboard" className="lp-nav-cta">
+              Go to Dashboard →
+            </a>
+          ) : (
+            <a href="/login" className="lp-nav-cta">
+              Sign In →
+            </a>
+          )}
+        </nav>
+
+        {/* HERO */}
+        <section className="lp-hero">
+          <div className="lp-hero-inner">
+            {/* Left: copy */}
+            <div>
+              <div className="lp-badge">
+                <span className="lp-badge-dot" />
+                Official Government System
+              </div>
+              <h1 className="lp-hero-title">
+                Ghana&apos;s Digital<br />
+                <span>Birth &amp; Death</span><br />
+                Registry
+              </h1>
+              <p className="lp-hero-desc">
+                A secure, government-grade platform for managing vital records. Streamline registrations, approvals, and certificate issuance — all in one place.
+              </p>
+              <div className="lp-hero-actions">
+                {session ? (
+                  <>
+                    <a href="/dashboard" className="lp-btn-primary">
+                      Access Dashboard →
+                    </a>
+                    <form action="/api/logout" method="post" style={{ display: "inline" }}>
+                      <button
+                        type="submit"
+                        className="lp-btn-secondary"
+                        style={{ cursor: "pointer", border: "1px solid #e2e8f0", background: "#fff", font: "inherit" }}
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <a href="/login" className="lp-btn-primary">
+                    Sign In to System →
+                  </a>
+                )}
+              </div>
+
+              <div className="lp-trust">
+                <span className="lp-trust-label">Serving</span>
+                <div className="lp-trust-chips">
+                  <span className="lp-trust-chip">Registry Officers</span>
+                  <span className="lp-trust-chip">Banks</span>
+                  <span className="lp-trust-chip">Insurance</span>
+                  <span className="lp-trust-chip">SSNIT</span>
+                </div>
+              </div>
             </div>
-            <h1 className="text-5xl font-bold text-blue-900 dark:text-blue-100 mb-6 leading-tight">
-              Birth & Death Registration System
-            </h1>
-            <p className="text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto mb-8 leading-relaxed">
-              A secure, government-grade platform for managing vital records. Streamline birth and death registrations with role-based workflows, ensuring accuracy, compliance, and efficiency for authorized personnel.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {session ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg"
-                  >
-                    🚀 Access Your Dashboard
-                  </Link>
-                  <form action="/api/logout" method="post" className="inline">
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center px-8 py-4 bg-zinc-600 text-white font-semibold rounded-lg"
-                    >
-                      🔒 Logout
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg text-lg"
-                >
-                  🔐 Login to System
-                </Link>
-              )}
+
+            {/* Right: visual */}
+            <div className="lp-hero-visual">
+              <div className="lp-card-stack">
+                {/* Floating stat cards */}
+                <div className="lp-stat-card" style={{ top: 0, right: "-10px", animationDelay: "0s" }}>
+                  <div className="lp-stat-icon" style={{ background: "rgba(26,86,219,0.08)" }}>📋</div>
+                  <div>
+                    <div className="lp-stat-label">Records Today</div>
+                    <div className="lp-stat-value">124</div>
+                  </div>
+                </div>
+
+                {/* Main card */}
+                <div className="lp-main-card">
+                  <div className="lp-main-card-label">Registration Workflow</div>
+                  <div className="lp-main-card-title">Seamless end-to-end process</div>
+                  <div className="lp-main-card-steps">
+                    <div className="lp-step">
+                      <div className="lp-step-num">1</div>
+                      <span className="lp-step-text">Registrar submits birth or death record</span>
+                    </div>
+                    <div className="lp-step">
+                      <div className="lp-step-num">2</div>
+                      <span className="lp-step-text">Administrator reviews &amp; verifies</span>
+                    </div>
+                    <div className="lp-step">
+                      <div className="lp-step-num">3</div>
+                      <span className="lp-step-text">Official certificate is issued</span>
+                    </div>
+                    <div className="lp-step">
+                      <div className="lp-step-num">4</div>
+                      <span className="lp-step-text">Institutions are notified automatically</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Second floating card */}
+                <div className="lp-stat-card" style={{ bottom: "20px", left: "-10px", animationDelay: "2s" }}>
+                  <div className="lp-stat-icon" style={{ background: "rgba(16,185,129,0.1)" }}>✅</div>
+                  <div>
+                    <div className="lp-stat-label">Approved</div>
+                    <div className="lp-stat-value">10,000+</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* Features Section */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center text-blue-900 dark:text-blue-100 mb-12">
-              Why Choose BDRS?
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white p-8 rounded-lg">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-3 text-blue-900">Secure & Compliant</h3>
-                <p className="text-zinc-600">
-                  End-to-end encryption, role-based access, and compliance with data protection standards. Only authorized personnel can access sensitive records.
-                </p>
-              </div>
-              <div className="bg-white p-8 rounded-lg">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-3 text-blue-900">Efficient Workflow</h3>
-                <p className="text-zinc-600">
-                  Streamlined submission, review, and approval process. Registrars submit, officers approve—reducing paperwork and errors.
-                </p>
-              </div>
-              <div className="bg-white p-8 rounded-lg">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-3 text-blue-900">Official Certificates</h3>
-                <p className="text-zinc-600">
-                  Generate verifiable birth and death certificates instantly upon approval. Track and manage all records in one place.
-                </p>
-              </div>
+        {/* FEATURES */}
+        <section className="lp-features">
+          <div className="lp-section-label">Platform features</div>
+          <h2 className="lp-section-title">Everything in one system</h2>
+          <p className="lp-section-desc">
+            Designed for Ghana&apos;s Births &amp; Deaths Registry — secure workflows, official certificates, and institutional integration.
+          </p>
+          <div className="lp-features-grid">
+            <div className="lp-feature-card">
+              <div className="lp-feature-icon" style={{ background: "rgba(26,86,219,0.08)" }}>🔐</div>
+              <div className="lp-feature-title">Role-Based Access</div>
+              <p className="lp-feature-desc">Registrars, administrators, and institutional officers each have tailored, secure access to only what they need.</p>
+            </div>
+            <div className="lp-feature-card">
+              <div className="lp-feature-icon" style={{ background: "rgba(16,185,129,0.1)" }}>⚡</div>
+              <div className="lp-feature-title">Efficient Workflow</div>
+              <p className="lp-feature-desc">Submit, review, and approve records through a guided multi-step process — reducing paperwork and eliminating errors.</p>
+            </div>
+            <div className="lp-feature-card">
+              <div className="lp-feature-icon" style={{ background: "rgba(245,158,11,0.1)" }}>📜</div>
+              <div className="lp-feature-title">Official Certificates</div>
+              <p className="lp-feature-desc">Generate government-grade birth and death certificates instantly upon approval, with a verifiable certificate number.</p>
+            </div>
+            <div className="lp-feature-card">
+              <div className="lp-feature-icon" style={{ background: "rgba(139,92,246,0.1)" }}>🏛️</div>
+              <div className="lp-feature-title">Institutional Notifications</div>
+              <p className="lp-feature-desc">Banks, insurance companies, and SSNIT receive automatic notifications for death records relevant to their operations.</p>
+            </div>
+            <div className="lp-feature-card">
+              <div className="lp-feature-icon" style={{ background: "rgba(239,68,68,0.08)" }}>📊</div>
+              <div className="lp-feature-title">Analytics &amp; Reports</div>
+              <p className="lp-feature-desc">Track registration trends, pending records, and generate reports across regions and time periods.</p>
+            </div>
+            <div className="lp-feature-card">
+              <div className="lp-feature-icon" style={{ background: "rgba(6,182,212,0.1)" }}>🛡️</div>
+              <div className="lp-feature-title">Secure &amp; Compliant</div>
+              <p className="lp-feature-desc">Session-based authentication, encrypted data handling, and compliance with data protection standards for vital records.</p>
             </div>
           </div>
+        </section>
 
-          {/* How It Works Section */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center text-blue-900 dark:text-blue-100 mb-12">
-              How It Works
-            </h2>
-            <div className="grid md:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">1</div>
-                <h4 className="font-semibold mb-2">Login</h4>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Authorized users log in with secure credentials.</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">2</div>
-                <h4 className="font-semibold mb-2">Submit Records</h4>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Registrars enter birth/death details and upload documents.</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">3</div>
-                <h4 className="font-semibold mb-2">Review & Approve</h4>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Officers/Registrar General verify and approve records.</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">4</div>
-                <h4 className="font-semibold mb-2">Issue Certificates</h4>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Approved records generate official certificates.</p>
-              </div>
+        {/* STATS */}
+        <section className="lp-stats">
+          <div className="lp-stats-inner">
+            <div className="lp-stat-big">
+              <div className="lp-stat-big-num">10K+</div>
+              <div className="lp-stat-big-label">Records Processed</div>
+            </div>
+            <div className="lp-stat-big">
+              <div className="lp-stat-big-num">99.9%</div>
+              <div className="lp-stat-big-label">System Uptime</div>
+            </div>
+            <div className="lp-stat-big">
+              <div className="lp-stat-big-num">24 / 7</div>
+              <div className="lp-stat-big-label">Secure Access</div>
             </div>
           </div>
+        </section>
 
-          {/* Stats Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-2xl mb-16">
-            <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4">Trusted by Government Agencies</h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div>
-                  <div className="text-3xl font-bold">10K+</div>
-                  <div className="text-blue-100">Records Processed</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold">99.9%</div>
-                  <div className="text-blue-100">Uptime</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold">24/7</div>
-                  <div className="text-blue-100">Secure Access</div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* FOOTER */}
+        <footer className="lp-footer">
+          <p>© 2026 Birth &amp; Death Registration System — Ministry of Local Government &amp; Rural Development, Ghana</p>
+        </footer>
 
-          {/* Footer */}
-          <footer className="text-center text-zinc-500 dark:text-zinc-400">
-            <p>&copy; 2026 Birth & Death Registration System. Built for secure and efficient vital record management.</p>
-          </footer>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

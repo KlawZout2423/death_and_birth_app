@@ -105,6 +105,7 @@ export default function SSNITDashboard() {
           value={stats?.totalDeaths ?? 0}
           icon={<AppIcon name="pension" />}
           color="blue"
+          href="/ssnit/notifications"
         />
       </div>
 

@@ -100,7 +100,8 @@ export default function BankDashboard() {
           icon={<AppIcon name="check" />}
           color="green"
         />
-        <StatCard title="Total Deaths" value={stats?.totalDeaths ?? 0} icon={<AppIcon name="bank" />} color="blue" />
+        <StatCard title="Total Deaths" value={stats?.totalDeaths ?? 0} icon={<AppIcon name="bank" />} color="blue" href="/bank/notifications" />
+
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">

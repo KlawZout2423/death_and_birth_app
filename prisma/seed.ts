@@ -45,7 +45,7 @@ async function main() {
   // Ensure Institutions exist
   const registry = await prisma.institution.upsert({
     where: { id: "seed-registry-institution" },
-    update: { type: InstitutionType.BANK },
+    update: {},
     create: { id: "seed-registry-institution", name: "Central Civil Registry", type: InstitutionType.BANK, email: "registry@dob.local" },
   });
 
@@ -53,6 +53,18 @@ async function main() {
     where: { id: "seed-bank-institution" },
     update: {},
     create: { id: "seed-bank-institution", name: "First National Bank", type: InstitutionType.BANK, email: "bank@dob.local" },
+  });
+
+  const insurance = await prisma.institution.upsert({
+    where: { id: "seed-insurance-institution" },
+    update: {},
+    create: { id: "seed-insurance-institution", name: "Ghana Life Insurance", type: InstitutionType.INSURANCE, email: "insurance@dob.local" },
+  });
+
+  const ssnit = await prisma.institution.upsert({
+    where: { id: "seed-ssnit-institution" },
+    update: {},
+    create: { id: "seed-ssnit-institution", name: "SSNIT Pension Fund", type: InstitutionType.PENSION, email: "ssnit@dob.local" },
   });
 
   // Users
@@ -66,6 +78,25 @@ async function main() {
     where: { email: "registry.officer@dob.local" },
     update: { name: "Registry Officer", role: Role.REGISTRY_OFFICER },
     create: { email: "registry.officer@dob.local", name: "Registry Officer", password: passwordHash, role: Role.REGISTRY_OFFICER, institutionId: registry.id, emailVerified: true },
+  });
+
+  // Institution Officers
+  const bankOfficer = await prisma.user.upsert({
+    where: { email: "bank@dob.local" },
+    update: { name: "Bank Officer", role: Role.INSTITUTION_OFFICER, institutionId: bank.id },
+    create: { email: "bank@dob.local", name: "Bank Officer", password: passwordHash, role: Role.INSTITUTION_OFFICER, institutionId: bank.id, emailVerified: true },
+  });
+
+  const insuranceOfficer = await prisma.user.upsert({
+    where: { email: "insurance@dob.local" },
+    update: { name: "Insurance Officer", role: Role.INSTITUTION_OFFICER, institutionId: insurance.id },
+    create: { email: "insurance@dob.local", name: "Insurance Officer", password: passwordHash, role: Role.INSTITUTION_OFFICER, institutionId: insurance.id, emailVerified: true },
+  });
+
+  const ssnitOfficer = await prisma.user.upsert({
+    where: { email: "ssnit@dob.local" },
+    update: { name: "SSNIT Officer", role: Role.INSTITUTION_OFFICER, institutionId: ssnit.id },
+    create: { email: "ssnit@dob.local", name: "SSNIT Officer", password: passwordHash, role: Role.INSTITUTION_OFFICER, institutionId: ssnit.id, emailVerified: true },
   });
 
   console.log("Seeding Birth Records...");
@@ -133,12 +164,48 @@ async function main() {
         },
       });
     }
+
+    if (d.status === RecordStatus.CERTIFICATE_ISSUED || d.status === RecordStatus.VERIFIED) {
+      const isOseiTutu = d.fullName === "Osei Tutu";
+      const isGraceMensah = d.fullName === "Grace Mensah";
+      const isSamuelTetteh = d.fullName === "Samuel Tetteh";
+      const isFatimaAdam = d.fullName === "Fatima Adam";
+
+      await prisma.notification.createMany({
+        data: [
+          {
+            deathRecordId: record.id,
+            institutionId: bank.id,
+            status: (isOseiTutu || isGraceMensah) ? NotificationStatus.RECEIVED : NotificationStatus.SENT,
+            receivedAt: (isOseiTutu || isGraceMensah) ? new Date() : null,
+            viewedById: (isOseiTutu || isGraceMensah) ? bankOfficer.id : null,
+          },
+          {
+            deathRecordId: record.id,
+            institutionId: insurance.id,
+            status: (isGraceMensah || isSamuelTetteh) ? NotificationStatus.RECEIVED : NotificationStatus.SENT,
+            receivedAt: (isGraceMensah || isSamuelTetteh) ? new Date() : null,
+            viewedById: (isGraceMensah || isSamuelTetteh) ? insuranceOfficer.id : null,
+          },
+          {
+            deathRecordId: record.id,
+            institutionId: ssnit.id,
+            status: (isGraceMensah || isFatimaAdam) ? NotificationStatus.RECEIVED : NotificationStatus.SENT,
+            receivedAt: (isGraceMensah || isFatimaAdam) ? new Date() : null,
+            viewedById: (isGraceMensah || isFatimaAdam) ? ssnitOfficer.id : null,
+          },
+        ],
+      });
+    }
   }
 
   console.log("Seed complete. Analytics now shows real, varied data across all regions.");
   console.table([
-    { role: "REGISTRAR GENERAL", email: "rg@dob.local", password: "Password123!" },
-    { role: "REGISTRY OFFICER", email: "registry.officer@dob.local", password: "Password123!" }
+    { role: "ADMINISTRATOR (Registrar General)", email: "rg@dob.local",                  password: "Password123!" },
+    { role: "REGISTRY OFFICER",                  email: "registry.officer@dob.local",     password: "Password123!" },
+    { role: "BANK OFFICER",                      email: "bank@dob.local",                 password: "Password123!" },
+    { role: "INSURANCE OFFICER",                 email: "insurance@dob.local",            password: "Password123!" },
+    { role: "SSNIT OFFICER",                     email: "ssnit@dob.local",                password: "Password123!" },
   ]);
 }
 

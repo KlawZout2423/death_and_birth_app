@@ -1,15 +1,17 @@
 "use client";
 
 import { ReactNode } from "react";
+import Link from "next/link";
 
 interface StatCardProps {
   title: string;
   value: number | string;
   icon: ReactNode;
   color?: "blue" | "green" | "yellow" | "red";
+  href?: string;
 }
 
-export function StatCard({ title, value, icon, color = "blue" }: StatCardProps) {
+export function StatCard({ title, value, icon, color = "blue", href }: StatCardProps) {
   const colorMap = {
     blue: "bg-blue-50/90 border-blue-200 shadow-blue-100/60",
     green: "bg-emerald-50/90 border-emerald-200 shadow-emerald-100/60",
@@ -31,12 +33,24 @@ export function StatCard({ title, value, icon, color = "blue" }: StatCardProps) 
     red: "bg-rose-600 text-white",
   };
 
-  return (
-    <div className={`${colorMap[color]} border rounded-2xl p-6 shadow-lg backdrop-blur-sm`}>
+  const arrowColorMap = {
+    blue: "text-blue-400",
+    green: "text-emerald-400",
+    yellow: "text-amber-400",
+    red: "text-rose-400",
+  };
+
+  const content = (
+    <div className={`${colorMap[color]} border rounded-2xl p-6 shadow-lg backdrop-blur-sm ${href ? "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl cursor-pointer" : ""}`}>
       <div className="flex justify-between items-start">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-zinc-500">{title}</p>
           <p className={`text-3xl font-bold ${textColorMap[color]} mt-2`}>{value}</p>
+          {href && (
+            <p className={`text-xs font-semibold mt-2 flex items-center gap-1 ${arrowColorMap[color]}`}>
+              View all <span>→</span>
+            </p>
+          )}
         </div>
         <div className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-md ${iconShellMap[color]}`}>
           <span className="h-6 w-6">{icon}</span>
@@ -44,7 +58,14 @@ export function StatCard({ title, value, icon, color = "blue" }: StatCardProps) 
       </div>
     </div>
   );
+
+  if (href) {
+    return <Link href={href} className="block">{content}</Link>;
+  }
+
+  return content;
 }
+
 
 interface RecentSubmissionProps {
   id: string;

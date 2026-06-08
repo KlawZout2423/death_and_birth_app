@@ -100,7 +100,8 @@ export default function InsuranceDashboard() {
           icon={<AppIcon name="check" />}
           color="green"
         />
-        <StatCard title="Total Deaths" value={stats?.totalDeaths ?? 0} icon={<AppIcon name="shield" />} color="blue" />
+        <StatCard title="Total Deaths" value={stats?.totalDeaths ?? 0} icon={<AppIcon name="shield" />} color="blue" href="/insurance/notifications" />
+
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
