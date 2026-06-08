@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "../../../lib/userStore";
-import { setSession, SessionPayload } from "../../../lib/session";
-import type { User } from "../../../lib/userStore";
+import { createSession, SessionPayload } from "../../../lib/session";
 
 export async function POST(req: Request) {
   try {
@@ -19,14 +18,25 @@ export async function POST(req: Request) {
     const sessionPayload: SessionPayload = {
       id: dbUser.id,
       email: dbUser.email,
-      name: dbUser.name || '',
+      name: dbUser.name || "",
       role: dbUser.role,
       institutionId: dbUser.institutionId ?? null,
     };
 
-    await setSession(sessionPayload);
-    
-    return NextResponse.json({ success: true });
+    // Sign the JWT
+    const token = createSession(sessionPayload);
+
+    // Set cookie directly on the response so middleware can read it on Vercel
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    return response;
   } catch (err) {
     console.error("/api/login error", err);
     return NextResponse.json(
