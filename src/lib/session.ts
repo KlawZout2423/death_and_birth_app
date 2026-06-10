@@ -16,7 +16,7 @@ export interface SessionPayload {
   institutionId?: string | null;
 }
 
-export function createSession(user: Omit<SessionPayload, 'id'>): string {
+export function createSession(user: SessionPayload): string {
   return jwt.sign(user, SECRET_KEY, { expiresIn: SESSION_EXPIRY });
 }
 
