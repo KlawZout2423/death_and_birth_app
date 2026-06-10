@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const token = createSession({
+    const token = await createSession({
       id: dbUser.id,
       email: dbUser.email,
       name: dbUser.name || "",

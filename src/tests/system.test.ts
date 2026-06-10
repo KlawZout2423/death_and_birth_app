@@ -98,7 +98,7 @@ describe("DOB Project System Integration Tests", () => {
       assert.equal(user, null, "Authentication should return null");
     });
 
-    it("should correctly sign and verify a session JWT", () => {
+    it("should correctly sign and verify a session JWT", async () => {
       const payload = {
         id: testOfficerId,
         email: testOfficerEmail,
@@ -107,10 +107,10 @@ describe("DOB Project System Integration Tests", () => {
         institutionId: null
       };
 
-      const token = createSession(payload);
+      const token = await createSession(payload);
       assert.ok(token, "Token should be generated");
 
-      const decoded = verifySession(token);
+      const decoded = await verifySession(token);
       assert.ok(decoded, "Token verification should succeed");
       assert.equal(decoded.email, testOfficerEmail);
       assert.equal(decoded.role, Role.REGISTRY_OFFICER);

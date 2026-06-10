@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
 
   const sessionToken = request.cookies.get("session")?.value;
 
-  const user = sessionToken ? verifySession(sessionToken) : null;
+  const user = sessionToken ? await verifySession(sessionToken) : null;
   const isAuthenticated = !!user;
 
   // Protect routes

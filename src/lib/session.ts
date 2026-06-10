@@ -1,10 +1,12 @@
-import jwt from "jsonwebtoken";
+import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { Role } from '../../generated/client';
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 const COOKIE_NAME = "session";
 const SESSION_EXPIRY = "7d";
+
+const KEY = new TextEncoder().encode(SECRET_KEY);
 
 export type RoleType = Role | "ADMINISTRATOR" | "REGISTRY_OFFICER" | "INSTITUTION_OFFICER";
 
@@ -16,21 +18,26 @@ export interface SessionPayload {
   institutionId?: string | null;
 }
 
-export function createSession(user: SessionPayload): string {
-  return jwt.sign(user, SECRET_KEY, { expiresIn: SESSION_EXPIRY });
+export async function createSession(user: SessionPayload): Promise<string> {
+  return await new SignJWT({ ...user })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(SESSION_EXPIRY)
+    .sign(KEY);
 }
 
-export function verifySession(token: string): SessionPayload | null {
+export async function verifySession(token: string): Promise<SessionPayload | null> {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as SessionPayload;
-    return decoded;
+    const { payload } = await jwtVerify(token, KEY, {
+      algorithms: ["HS256"],
+    });
+    return payload as unknown as SessionPayload;
   } catch {
     return null;
   }
 }
 
 export async function setSession(user: Omit<SessionPayload, 'id'> & {id: string}) {
-  const token = createSession(user);
+  const token = await createSession(user);
   const cookieStore = await cookies();
   
   cookieStore.set(COOKIE_NAME, token, {
@@ -48,7 +55,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   
   if (!token) return null;
   
-  const session = verifySession(token);
+  const session = await verifySession(token);
   if (!session) return null;
   return session;
 }
